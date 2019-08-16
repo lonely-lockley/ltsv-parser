@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+}
+
+group 'com.github.lolo'
+version '1.0.0'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.hamcrest:hamcrest-library:1.3'
+}
