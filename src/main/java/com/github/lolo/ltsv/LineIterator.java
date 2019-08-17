@@ -22,6 +22,9 @@ public class LineIterator implements Iterator<Map<String, String>> {
         return new LineIterator(data, parseLine);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasNext() {
         try {
@@ -32,6 +35,9 @@ public class LineIterator implements Iterator<Map<String, String>> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, String> next() {
         try {

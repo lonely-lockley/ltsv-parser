@@ -18,7 +18,8 @@ cache:
 
 script:
   - ./gradlew clean check
-  - ./gradlew jacocoTestReport
+  - ./gradlew clean build javadoc jacocoTestReport
+  - ./gradlew javadocJar sourcesJar
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

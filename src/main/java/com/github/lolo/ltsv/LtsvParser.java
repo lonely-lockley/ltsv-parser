@@ -27,14 +27,44 @@ public class LtsvParser {
 
     private LtsvParser() {}
 
+    /**
+     * Creates a new builder for a parser with default configuration <br>
+     * <ul>
+     *     <li>entryDelimiter = '\t'</li>
+     *     <li>kvDelimiter = ':'</li>
+     *     <li>escapeChar = '\\'</li>
+     *     <li>quoteChar = '\"'</li>
+     *     <li>lineEnding = '\n'</li>
+     *     <li>strict = true</li>
+     * </ul>
+     * ready to parse regular LTSV format <br>
+     * <pre>
+     *     abc:1    def:2       jhi:3\"
+     *     klm:4    nop:"5 6"   qrs:7
+     * </pre>
+     * @return a new builder
+     */
     public static Builder builder() {
         return new LtsvParser().new Builder();
     }
 
+    /**
+     * Parses a given string
+     * @param data a string to parse
+     * @param charset character encoding to extract raw bytes correctly
+     * @return iterator containing a new HashMap for each row. If a row is empty, method returns empty Map, otherwise
+     * it will be populated with extracted values
+     */
     public Iterator<Map<String, String>> parse(String data, Charset charset) {
         return parse(new ByteArrayInputStream(data.getBytes(charset)));
     }
 
+    /**
+     * Parses a given input stream to the end
+     * @param data a stream to parse
+     * @return iterator containing a new HashMap for each row. If a row is empty, method returns empty Map, otherwise
+     * it will be populated with extracted values
+     */
     public Iterator<Map<String, String>> parse(InputStream data) {
         return LineIterator.newIterator(data, this::parseLine);
     }
@@ -153,41 +183,80 @@ public class LtsvParser {
 
         private Builder() {}
 
+        /**
+         * Do not tolerate some recoverable errors <br>
+         * This is a default mode for parser
+         * @return <b>this</b> for chaining
+         */
         public Builder strict() {
             LtsvParser.this.strict = true;
             return this;
         }
 
+        /**
+         * Recover parser after some kind of errors <br>
+         * For example, a key without a value
+         * @return <b>this</b> for chaining
+         */
         public Builder lenient() {
             LtsvParser.this.strict = false;
             return this;
         }
 
+        /**
+         * Sets up a new entry delimiter
+         * @param delim new value
+         * @return <b>this</b> for chaining
+         */
         public Builder withEntryDelimiter(char delim) {
             LtsvParser.this.entryDelimiter = delim;
             return this;
         }
 
+        /**
+         * Sets up a new key-value delimiter
+         * @param delim new value
+         * @return <b>this</b> for chaining
+         */
         public Builder withKvDelimiter(char delim) {
             LtsvParser.this.kvDelimiter = delim;
             return this;
         }
 
+        /**
+         * Sets up a new escape character
+         * @param escape new value
+         * @return <b>this</b> for chaining
+         */
         public Builder withEscapeChar(char escape) {
             LtsvParser.this.escapeChar = escape;
             return this;
         }
 
+        /**
+         * Sets up a new quote character
+         * @param quote new value
+         * @return <b>this</b> for chaining
+         */
         public Builder withQuoteChar(char quote) {
             LtsvParser.this.quoteChar = quote;
             return this;
         }
 
+        /**
+         * Sets up a new character for new line detection
+         * @param eol new value
+         * @return <b>this</b> for chaining
+         */
         public Builder withLineEnding(char eol) {
             LtsvParser.this.lineEnding = eol;
             return this;
         }
 
+        /**
+         * Finishes build process and returns a new parser
+         * @return a newly configured LTSV parser
+         */
         public LtsvParser build() {
             return LtsvParser.this;
         }

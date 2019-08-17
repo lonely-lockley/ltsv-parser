@@ -10,6 +10,7 @@ public interface CheckedBiFunction<T, U, R> {
      * @param t the first function argument
      * @param u the second function argument
      * @return the function result
+     * @throws IOException if something goes wrong with underlying input stream
      */
     R apply(T t, U u) throws IOException;
 
