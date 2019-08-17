@@ -25,15 +25,10 @@ public class LtsvParser {
 
     private LinkedList<ParseMode> mode = new LinkedList<>();
 
-    public LtsvParser() {}
+    private LtsvParser() {}
 
-    public LtsvParser(char entryDelimiter, char kvDelimiter, char escapeChar, char quoteChar, char lineEnding, boolean strict) {
-        this.entryDelimiter = entryDelimiter;
-        this.kvDelimiter = kvDelimiter;
-        this.escapeChar = escapeChar;
-        this.quoteChar = quoteChar;
-        this.lineEnding = lineEnding;
-        this.strict = strict;
+    public static Builder builder() {
+        return new LtsvParser().new Builder();
     }
 
     public Iterator<Map<String, String>> parse(String data, Charset charset) {
@@ -50,13 +45,15 @@ public class LtsvParser {
         StringBuilder value = new StringBuilder(1024);
         Map<String, String> result = new HashMap<>();
         int position = 0;
-        while (data.available() > 0) {
+        while (data.available() > 0 && mode.peek() != EOL) {
             int c = data.read();
             position++;
             switch (mode.peek()) {
                 case KEY: {
                     if (c == lineEnding) {
-                        continue;
+                        mode.pop();
+                        mode.push(EOL);
+                        break;
                     }
                     if (c == entryDelimiter) {
                         if (strict) {
@@ -68,7 +65,7 @@ public class LtsvParser {
                         }
                         continue;
                     }
-                    if (c == escapeChar || c == quoteChar || (c == kvDelimiter && key.length() == 0)) {
+                    if (c == escapeChar || c == quoteChar) {
                         throw new ParseLtsvException(String.format("Unexpected token [%c] at line [%d] position [%d]", c, lineNum, position));
                     }
                     if (c == kvDelimiter) {
@@ -85,6 +82,11 @@ public class LtsvParser {
                     break;
                 }
                 case VALUE: {
+                    if (c == lineEnding) {
+                        mode.pop();
+                        mode.push(EOL);
+                        break;
+                    }
                     if (c == quoteChar && value.length() == 0) {
                         mode.push(QUOTED);
                         continue;
@@ -115,6 +117,10 @@ public class LtsvParser {
                     break;
                 }
                 case QUOTED: {
+                    if (c == escapeChar) {
+                        mode.push(ESCAPED);
+                        continue;
+                    }
                     if (c == quoteChar) {
                         mode.pop();
                         continue;
@@ -124,19 +130,66 @@ public class LtsvParser {
                 }
             }
         }
+
         if (key.length() > 0) {
             if (value.length() == 0) {
-                result.put(key.toString(), null);
+                if (strict) {
+                    throw new ParseLtsvException(String.format("Key without a value at line [%d] position [%d]", lineNum, position));
+                }
+                else {
+                    result.put(key.toString(), null);
+                }
             }
             else {
                 result.put(key.toString(), value.toString());
             }
         }
-        else
-        if (strict) {
-            throw new ParseLtsvException(String.format("Key without a value at line [%d] position [%d]", lineNum, position));
-        }
+
         mode.clear();
         return result;
+    }
+
+    public class Builder {
+
+        private Builder() {}
+
+        public Builder strict() {
+            LtsvParser.this.strict = true;
+            return this;
+        }
+
+        public Builder lenient() {
+            LtsvParser.this.strict = false;
+            return this;
+        }
+
+        public Builder withEntryDelimiter(char delim) {
+            LtsvParser.this.entryDelimiter = delim;
+            return this;
+        }
+
+        public Builder withKvDelimiter(char delim) {
+            LtsvParser.this.kvDelimiter = delim;
+            return this;
+        }
+
+        public Builder withEscapeChar(char escape) {
+            LtsvParser.this.escapeChar = escape;
+            return this;
+        }
+
+        public Builder withQuoteChar(char quote) {
+            LtsvParser.this.quoteChar = quote;
+            return this;
+        }
+
+        public Builder withLineEnding(char eol) {
+            LtsvParser.this.lineEnding = eol;
+            return this;
+        }
+
+        public LtsvParser build() {
+            return LtsvParser.this;
+        }
     }
 }

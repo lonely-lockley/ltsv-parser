@@ -4,5 +4,6 @@ public enum ParseMode {
     KEY,
     VALUE,
     QUOTED,
-    ESCAPED
+    ESCAPED,
+    EOL
 }
