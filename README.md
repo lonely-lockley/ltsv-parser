@@ -1,4 +1,4 @@
-# Ltsv Parser
+# LTSV Parser
 
 Master status: [![Build Status](https://img.shields.io/travis/com/lonely-lockley/ltsv-parser)](https://api.travis-ci.org/lonely-lockley/}) 
 [![Coverage](https://img.shields.io/codecov/c/gh/lonely-lockley/ltsv-parser)](https://codecov.io/gh/lonely-lockley/ltsv-parser) 
