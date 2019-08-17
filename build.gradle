@@ -1,14 +1,24 @@
 plugins {
     id 'java'
+    id 'jacoco'
 }
 
 group 'com.github.lolo'
 version '1.0.0'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.enabled true
+    }
 }
 
 dependencies {
