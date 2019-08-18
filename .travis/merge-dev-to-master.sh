@@ -22,12 +22,6 @@ then
     exit 0;
 fi
 
-echo "Debug"
-echo $GITHUB_SECRET_TOKEN
-echo $TRAVIS_COMMIT
-echo $SONATYPE_USERNAME
-echo "End debug"
-
 : ${GITHUB_SECRET_TOKEN:?"GITHUB_SECRET_TOKEN needs to be set in .travis.yml!"}
 : ${TRAVIS_COMMIT:?"TRAVIS_COMMIT needs to be available to merge the right commit to master!"}
 
