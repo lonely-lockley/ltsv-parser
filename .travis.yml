@@ -37,6 +37,7 @@ before_install:
   - .travis/install.sh
 
 script:
+  - export GITHUB_SECRET_TOKEN=$GITHUB_SECRET_TOKEN
   - chmod -R ug+x .travis
   - .travis/build.sh
   - .travis/merge-dev-to-master-gate.sh
