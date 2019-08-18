@@ -1,3 +1,13 @@
+env:
+  global:
+    - secure: "EgiIySFi55cJEYyKWbu9+I0Bq/xZpuhb62yg/Kp1VnDY9CsPXJ3A2/5hJTMCEsqkWoliAGdXTgDLWIMhuvZZGKqvvtSl1LL1j+KQKVZ5ocNjVsFZ/0dOZ7FwyUJHfF4mG/h5sJab6Jkhhjn4kWmugJGQMnji+nQbjz5pOhddTL08Ffh9kXmdY1Gp/F4JOIUKIFMHJKAWlCqYWNvltb6djBmBHb9lEHP/VbaK1U7QMeZ1BHhMTdbdwF9EbXcvRrNMzeWdpqlwFvnRqJbTkyExdOKHwWHTMODtWOSJ/TH2BQ2mxN9bbmPeTF/SZiD28kM5kbhQFx7bulZAN6sSHhBx+5LjBjdjnLnfpPWgBRCm43NjpzjMSni9ZvpTFcX9GR3C76GOyjMAc5KNghb0jNzYNQFkaBn7Tl8SPLBZOlcyjVUdzc0G3RlobhYiM6BdVlHtvF0bvd9qg/OHtbVOHCXhighfj5Gd1q1VIyeMZ2wT9fL9kL8FST0p8Nlx/ky46/Om6RvIGPpz7b1Q9XMw9Db+vFKBtyeXZOJnXwy5nY9bPC2Un4ubfAk3Z0bs1Q0kbmoB83MkiSFtTEXNcXJ04F8DiXpuPg2lioOLBBjOLMJ/zivBZITflARitJdGtMzNijyq/8fVZ1V3vK+nOjDb6noZ8OqVTcCh0y+gAh0f+WvPpv4="
+    - secure: "NP+LLd69iGfBcTZu4AyUGzUQMIiG42Q6KQIxpW3rKa2nvfuJ9x506HFhOngq3XExquqeRcibTZlJYTEjadtt2ckb2wyZk8IbuwJNVkZj3xA2ExVyZF1lpEKqk1mwroPEjrmcUZA/zfgeBYrH2mk9NJ7txnodqCpC0lhSvupdMgoEFWvejAAaOsePLfpny6x8P8ItNZoIkZx19QNMHuepFAWJz+06MQ2gG2qJV7C1RkGeyLdV397yA4t4jJELMHERA7CsKsoI5W1tGMXPELRm6LEZ8Hon6N3menfZv1SR4ILyZkbLWf4d6D9fOeQwhMt9p6yKvwtxl0vi9cKutt/xWq+w0vpcKGK0SZCTWnvF9FzVuFwhr2UNvlOUI7+/I0G1eADTNHbWy3dUWOoqLMGRZbIA/7dQtf9Y88fd5fHPTUiLfHSVB8nJ/81jFDDT3NGWQ6beWUkLtPlJW5LU8X6fP3SofdwE4uPCBM5M1uEVcg6F3O2uaXEqeyhbzO2WtKA/4B279Se321R7hTYx7exWW4ZhAddWFxJP5A4bgmdI0uLZ0sjDlwh/ohBCrJoQfwVMGG4gSDlgYWbiHSNXxxEHlSV3mSAX9fA+h9U850itQHbn2EkEeXC4db7dKdV3C2IxP+Hsfv5XSFr1W6MpjlK/qFhtiw1dOx5esBCjfbuQB6U="
+    - secure: "T7nqZehy9Qam5M1+rhEzhgF8RsvXAb6M4gJxgRsfrNdRh38Fq5KSwSo/f22rQs3d1A5lqZtnR+dd1gsGrAEiuP5aMosr7KbuSx/wyPxK1oYRlU/NuELFjVO50E+DBtS9GE7wrv2zsu/u3k9WE2ZYt5X1DxPNSiN3J3mKnPI5fRqEHsOMD9/ubHy+dBSkcj7A22XB4HYICc6ryH/rRimUthAEBYM7ZmR/UfBYVob6pmJVZRPwWVib88HYwoRmDrvYT9uyOgGcelDVBJ8wK8SxNeicsrlUQD4BP0VUZSta7Ut896r2Rj1CLUcWjaMHaNdKvYNHX4vc6v4VqDlaY/j3obHWCatNb39UkGi8NOarfuwfYYJqSzhl/0V/uVKIvxtvmK/jKZLNAG135IIXHymJYvd2hZ4bUGbzqdV4QZAI21j3mjjIitATgGFHBjpHwPgk0s/tW9+y93ojF/cuj5Y7eNRxKdn+0wcxDOScx8WcR/3Zi71NS3wPVnw1XMiK09BpyOIIL+yGXJG0fY5cGQnFblNZxkkyiqqLr3ONo1srvzgLgGV/gs1h2OiPydTuqfc+OQaCcvAMn7o8myprdBw/mNCz04o8MTJR4SLV15JaH9Z1rkTcqAaTF/KxiN/YOkiKgMGzf7BvToUveiIANB9+baG/eojZMQtoywi32S2WUaY="
+    - secure: "F6KiplQD+pM9DNJ5V0U6+3jRQ/zQjN9Cf4O21jg87QCx8hEOQTgqGS0F4rweypOXwUYiTBUNbWjMM3Bc+sGrwRZOS05Sq0VnpFQ7Wx6+3QXCdsN9nw8iJtqio4llwhtAMuoFgHvsSlfgnLW33UKLnVpMmDMFsM8imhDf31Uv+nli9PXqaDcvNpk7z5MAJu0qmJQ7h5AcFzeTUvg2Ewt2H/cKB50dYsd+JW6ieCcFKKpi3phQgxFifNvBUH4M5ZCvTjYbJ2Bc/b3AjqeEtVBML7gxWQ37bAqslBk/StR21tTWTva8xthYUlEFC8Q/zaGaNrZHk32Lo/5GvvgjJjhzhvCiiXLQD3L1ocXde62ZeZk7ffYSkupqL/0reung9ww6sZQH/XfF/jKdkI/oeAuHeIGJgadzO2vRAvbDZFv3QaGd8dbAFcZv0yeTE348KZ7K7UivxkO2DVasIr2h1+HB7lGSWNXnrvarGFoXBUA6+kxMIwvNcwmU0M4gY9XDsbeVzAtagR1M7q5/l74RVU6UkX2EON1BbrvQog58qreV/dQ93R68/B97aboSszOFp8QIIdgckpC4W+Q3xNDv/0qL9Vjt63b9cGOcCTvAk7Oh+Xo3cvDjCM4pacisB68kwhwKSiY58yb0Thf+jN98vE4E6yVLdjIh9svS2Ma4LLwEKbE="
+    - secure: "pcJ0ttg84ILXVB6T4XKQUG9w12sn+inmoKB8nyfxz8myzbS6lGNtMQwSj7TEGmVZBg/11y/47JmWPKMtYw1eKF3iGSrNrPRC8xGiWME2FuvSsT46KsEww90SzQEKyExB8RAvKI9/NSTJ/cCRzeQCi3SVfGz4iILjjbE67QEhJMHAEM7Xvh77zS2Y81O7wn+ChY/ecMlwOPcnYz+9RJxQJRjMijOImlJMcOOducZiQYKvHi+1uMO8K3cDqZBvMeLRnbh1mx/IiL80NmCsKXtHa96UtVgWIuqgUFCAaGFV96KARYJDsLaoJFW2IpTrL/dJxHMLHvxvGNjoB5lH+1XO6+yOv9IFiSrxfeZc6VCZn72e2u0CurjrO25ybnvfADhEZv52mwdo64t/OzDttLVYRFQVdCOXhu3XV9uqoeU180/QjOD2zZNuKckC2LC76WOCqRBUfWSeoiy82E6zQb4tpmdgQwFABIqnKYMraaqCSuC/9U3FRQbdP4YkecoYZQPlOL6u4y+tFAL3taWhXmPVt4QFhEqDxTfrZl89V5/k/PWm60QOHMWW90vnffxFGthVWiV7AkbQF+q6MCR89mzylsQ+iUTKueAOZfxgqaEomxVSLTS1nbBlBw/CzEbi2qAol+nEaRX74d2jnhQ4JykDvbbD83LVEAAji7Whg6UYHUg="
+    - GPG_KEY_LOCATION=".travis/sonatype_secret.gpg"
+    - ENCRYPTED_GPG_KEY_LOCATION=".travis/sonatype_secret.gpg.enc"
+
 language: java
 
 jdk:
@@ -11,15 +21,22 @@ dist: trusty
 branches:
   only:
     - master
+    - dev
 
 cache:
   directories:
     - $HOME/.gradle
 
+before_install:
+  - chmod -R ug+x .travis
+  - .travis/install.sh
+
 script:
-  - ./gradlew clean check
-  - ./gradlew clean build javadoc jacocoTestReport
-  - ./gradlew javadocJar sourcesJar
+  - chmod -R ug+x .travis
+  - .travis/build.sh
+  - .travis/merge-dev-to-master-gate.sh
+  - .travis/deploy-gate.sh
+  - .travis/tag-master-gate.sh
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
