@@ -2,7 +2,7 @@
 
 Master status: [![Build Status](https://img.shields.io/travis/lonely-lockley/ltsv-parser)](https://api.travis-ci.org/lonely-lockley/}) 
 [![Coverage](https://img.shields.io/codecov/c/gh/lonely-lockley/ltsv-parser)](https://codecov.io/gh/lonely-lockley/ltsv-parser) 
-[![Maven Central](https://img.shields.io/maven-central/v/lonely-lockley/ltsv-parser])](http://www.apache.org/licenses/)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.lonely-lockley/ltsv-parser])](https://search.maven.org/search?q=ltsv-parser)
 [![License](https://img.shields.io/github/license/lonely-lockley/ltsv-parser?color=%235b92e5)](http://www.apache.org/licenses/)
 
 A new implementation of a small and fast LTSV parser. Compared to [making/ltsv4j](https://github.com/making/ltsv4j) it:
