@@ -4,7 +4,6 @@ plugins {
     id 'maven'
     id 'signing'
     id 'maven-publish'
-    id "io.codearte.nexus-staging" version "0.8.0"
 }
 
 sourceCompatibility = 1.8
