@@ -5,8 +5,9 @@ then
     if [ "$MANUAL_RELEASE_TRIGGERED" = "true" ];
         then
             echo "Sign, Upload archives to local repo, Upload archives to Sonatype, Close and release repository."
-            ./gradlew uploadArchives publishToNexusAndClose
+            ./gradlew uploadArchives
         else
+            echo "Sign, Upload archives to local repo, Upload archives to Sonatype Snapshot repository."
             ./gradlew uploadArchives
     fi
 fi
