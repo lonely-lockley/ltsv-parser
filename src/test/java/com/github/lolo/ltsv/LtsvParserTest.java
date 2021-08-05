@@ -106,6 +106,43 @@ public class LtsvParserTest {
         it.next();
     }
 
+    @Test(expected = ParseLtsvException.class)
+    public void testSingleLineStrictQuotedEmptyValue() {
+        LtsvParser parser = LtsvParser.builder().strict().withQuoteChar('`').build();
+        Iterator<Map<String, String>> it = parser.parse("abc:1\thij:``", StandardCharsets.UTF_8);
+        it.next();
+    }
+
+    @Test
+    public void testSingleLineLenientEmptyValue() {
+        LtsvParser parser = LtsvParser.builder().lenient().build();
+        Iterator<Map<String, String>> it = parser.parse("abc:1\thij:", StandardCharsets.UTF_8);
+        Map<String, String> data = it.next();
+        assertThat(data, hasEntry("abc", "1"));
+        assertThat(data, hasEntry("hij", null));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test
+    public void testSingleLineLenientQuotedEmptyValue() {
+        LtsvParser parser = LtsvParser.builder().lenient().withQuoteChar('`').build();
+        Iterator<Map<String, String>> it = parser.parse("abc:1\thij:``", StandardCharsets.UTF_8);
+        Map<String, String> data = it.next();
+        assertThat(data, hasEntry("abc", "1"));
+        assertThat(data, hasEntry("hij", null));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test
+    public void testSingleLineLenientEmptyValueSkip() {
+        LtsvParser parser = LtsvParser.builder().lenient().skipNullValues().build();
+        Iterator<Map<String, String>> it = parser.parse("abc:1\thij:", StandardCharsets.UTF_8);
+        Map<String, String> data = it.next();
+        assertThat(data, hasEntry("abc", "1"));
+        assertThat(data, not(hasEntry("hij", null)));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
     @Test
     public void testSingleLineStrictQuote() {
         LtsvParser parser = LtsvParser.builder().strict().withQuoteChar('`').build();
