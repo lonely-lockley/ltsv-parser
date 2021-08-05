@@ -89,6 +89,6 @@ signing {
     def signingPassword = System.getenv('GPG_PASSPHRASE')
     if (!(signingKeyId == null) && !signingKeyId.isEmpty()) {
         useInMemoryPgpKeys(signingKeyId, signingKeyRingFile, signingPassword)
-        sign publishing.publications.mavenJava
+        sign configurations.archives
     }
 }
