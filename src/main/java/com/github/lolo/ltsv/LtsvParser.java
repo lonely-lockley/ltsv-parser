@@ -23,6 +23,8 @@ public class LtsvParser {
 
     private boolean strict = true;
 
+    private boolean skipNullValues = false;
+
     private LinkedList<ParseMode> mode = new LinkedList<>();
 
     private LtsvParser() {}
@@ -36,6 +38,7 @@ public class LtsvParser {
      *     <li>quoteChar = '\"'</li>
      *     <li>lineEnding = '\n'</li>
      *     <li>strict = true</li>
+     *     <li>skipNullValues = false</li>
      * </ul>
      * ready to parse regular LTSV format <br>
      * <pre>
@@ -90,7 +93,7 @@ public class LtsvParser {
                             throw new ParseLtsvException(String.format("Key without a value at line [%d] position [%d]", lineNum, position));
                         }
                         if (key.length() > 0) {
-                            result.put(key.toString(), null);
+                            if (skipNullValues == false) result.put(key.toString(), null);
                             key.setLength(0);
                         }
                         continue;
@@ -127,7 +130,7 @@ public class LtsvParser {
                     }
                     if (c == entryDelimiter) {
                         if (value.length() == 0) {
-                            result.put(key.toString(), null);
+                            if (skipNullValues == false) result.put(key.toString(), null);
                         }
                         else {
                             result.put(key.toString(), value.toString());
@@ -167,7 +170,7 @@ public class LtsvParser {
                     throw new ParseLtsvException(String.format("Key without a value at line [%d] position [%d]", lineNum, position));
                 }
                 else {
-                    result.put(key.toString(), null);
+                    if (skipNullValues == false) result.put(key.toString(), null);
                 }
             }
             else {
@@ -250,6 +253,15 @@ public class LtsvParser {
          */
         public Builder withLineEnding(char eol) {
             LtsvParser.this.lineEnding = eol;
+            return this;
+        }
+
+        /**
+         * Sets up a mode when null (e.g. empty string) values will be skipped
+         * @return <b>this</b> for chaining
+         */
+        public Builder skipNullValues() {
+            LtsvParser.this.skipNullValues = true;
             return this;
         }
 
