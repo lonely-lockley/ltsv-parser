@@ -85,10 +85,10 @@ publishing {
 
 signing {
     def signingKeyId = System.getenv('GPG_KEY_ID')
-    def signingKeyRingFile = System.getenv('GPG_KEY_LOCATION')
-    def signingPassword = System.getenv('GPG_PASSPHRASE')
     if (!(signingKeyId == null) && !signingKeyId.isEmpty()) {
-        useInMemoryPgpKeys(signingKeyId, signingKeyRingFile, signingPassword)
-        sign configurations.archives
+        project.ext."signing.keyId" = signingKeyId
+        project.ext."signing.secretKeyRingFile" = System.getenv('GPG_KEY_LOCATION')
+        project.ext."signing.password" = System.getenv('GPG_PASSPHRASE')
+        sign publishing.publications.mavenJava
     }
 }
