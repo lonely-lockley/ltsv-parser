@@ -72,6 +72,39 @@ public class LtsvParser {
         return LineIterator.newIterator(data, this::parseLine);
     }
 
+    private void putEntry(Map<String, String> result, StringBuilder key, StringBuilder value, int lineNum, int position) {
+        if (key.length() > 0) {
+            if (value.length() == 0) {
+                if (skipNullValues == false) result.put(key.toString(), null);
+            }
+            else {
+                result.put(key.toString(), value.toString());
+            }
+        }
+        else {
+            if (value.length() > 0) {
+                if (strict) {
+                    throw new ParseLtsvException(String.format("Empty key detected at line [%d] position [%d]", lineNum, position));
+                }
+                else {
+                    result.put(null, value.toString());
+                }
+            }
+        }
+    }
+
+    /**
+     * From now on in comments:
+     * <ul>
+     *     <li>key = kkk</li>
+     *     <li>value = vvv</li>
+     *     <li>entryDelimiter = _</li>
+     *     <li>kvDelimiter = :</li>
+     *     <li>escapeChar = \</li>
+     *     <li>quoteChar = "</li>
+     *     <li>lineEnding = n</li>
+     * </ul>
+     */
     private Map<String, String> parseLine(InputStream data, int lineNum) throws IOException {
         mode.push(KEY);
         StringBuilder key = new StringBuilder(128);
@@ -83,72 +116,104 @@ public class LtsvParser {
             position++;
             switch (mode.peek()) {
                 case KEY: {
+                    // kkk:vvvn
+                    //        ^
                     if (c == lineEnding) {
                         mode.pop();
                         mode.push(EOL);
                         break;
                     }
+                    // kkk_kkk:vvv
+                    //    ^
                     if (c == entryDelimiter) {
                         if (strict) {
                             throw new ParseLtsvException(String.format("Key without a value at line [%d] position [%d]", lineNum, position));
                         }
-                        if (key.length() > 0) {
-                            if (skipNullValues == false) result.put(key.toString(), null);
-                            key.setLength(0);
-                        }
+                        key.append((char) c);
                         continue;
                     }
-                    if (c == escapeChar || c == quoteChar) {
-                        throw new ParseLtsvException(String.format("Unexpected token [%c] at line [%d] position [%d]", c, lineNum, position));
+                    // k"kk:vvv
+                    //  ^
+                    if (c == quoteChar) {
+                        if (strict) {
+                            throw new ParseLtsvException(String.format("Unexpected quote token [%c] at line [%d] position [%d]", c, lineNum, position));
+                        }
+                        else {
+                            key.append((char) c);
+                            continue;
+                        }
                     }
+                    // k\kk:vvv
+                    //  ^
+                    if (c == escapeChar) {
+                        if (strict) {
+                            throw new ParseLtsvException(String.format("Unexpected escape token [%c] at line [%d] position [%d]", c, lineNum, position));
+                        }
+                        else {
+                            mode.push(ESCAPED);
+                            continue;
+                        }
+                    }
+                    // kkk:vvv
+                    //    ^
                     if (c == kvDelimiter) {
-                        if (key.length() == 0) {
+                        if (key.length() == 0 && strict) {
                             throw new ParseLtsvException(String.format("Empty key detected at line [%d] position [%d]", lineNum, position));
                         }
                         mode.pop();
                         mode.push(VALUE);
                         continue;
                     }
+                    // kkk:vvv
+                    //  ^
                     else {
                         key.append((char) c);
                     }
                     break;
                 }
                 case VALUE: {
+                    // kkk:vvvn
+                    //        ^
                     if (c == lineEnding) {
                         mode.pop();
                         mode.push(EOL);
                         break;
                     }
+                    // kkk:"vvv"
+                    //     ^
                     if (c == quoteChar && value.length() == 0) {
                         mode.push(QUOTED);
                         continue;
                     }
+                    // kkk:v\vv
+                    //      ^
                     if (c == escapeChar) {
                         mode.push(ESCAPED);
                         continue;
                     }
+                    // kkk:vvv_kkk:vvv   or   kkk:"vvv"_kkk:vvv
+                    //        ^                        ^
                     if (c == entryDelimiter) {
-                        if (value.length() == 0) {
-                            if (skipNullValues == false) result.put(key.toString(), null);
-                        }
-                        else {
-                            result.put(key.toString(), value.toString());
-                        }
-                        key.setLength(0);
-                        value.setLength(0);
-                        mode.pop();
-                        mode.push(KEY);
+                        mode.push(ENTRY_DELIMITER);
                         continue;
                     }
                     value.append((char) c);
                     break;
                 }
+                // kkk:v\vv
+                //       ^
                 case ESCAPED: {
-                    value.append((char) c);
                     mode.pop();
+                    if (mode.peek() == KEY) {
+                        key.append((char) c);
+                    }
+                    else {
+                        value.append((char) c);
+                    }
                     break;
                 }
+                // kkk:"vvv"   or   kkk:v\vv   or   kkk:"vvv"
+                //       ^               ^                  ^
                 case QUOTED: {
                     if (c == escapeChar) {
                         mode.push(ESCAPED);
@@ -156,28 +221,63 @@ public class LtsvParser {
                     }
                     if (c == quoteChar) {
                         mode.pop();
+                        if (strict) {
+                            mode.pop();
+                            mode.push(VALUE);
+                            mode.push(ENTRY_DELIMITER);
+                        }
                         continue;
                     }
                     value.append((char) c);
                     break;
                 }
+                case ENTRY_DELIMITER: {
+                    // kkk:vvv_n
+                    //         ^
+                    if (c == lineEnding) {
+                        mode.pop();
+                        mode.push(EOL);
+                        break;
+                    }
+                    // kkk_kkk:vvv   or   kkk__kkk:vvv
+                    //     ^                  ^
+                    if (c == entryDelimiter) {
+                        continue;
+                    }
+                    // kkk:vvv_\kkk:vvv   or   kkk:vvv_"kkk":vvv
+                    //         ^                       ^
+                    if (c == escapeChar || c == quoteChar) {
+                        mode.pop();
+                        continue;
+                    }
+                    if (c == kvDelimiter) {
+                        putEntry(result, key, value, lineNum, position);
+                        key.setLength(0);
+                        value.setLength(0);
+                        mode.pop();
+                        mode.pop();
+                        mode.push(VALUE);
+                        continue;
+                    }
+                    mode.pop();
+                    putEntry(result, key, value, lineNum, position);
+                    key.setLength(0);
+                    value.setLength(0);
+                    if (mode.peek() == KEY) {
+                        value.append((char) c);
+                    }
+                    else {
+                        key.append((char) c);
+                    }
+                    mode.pop();
+                    mode.push(KEY);
+                    break;
+                }
             }
         }
 
-        if (key.length() > 0) {
-            if (value.length() == 0) {
-                if (strict) {
-                    throw new ParseLtsvException(String.format("Key without a value at line [%d] position [%d]", lineNum, position));
-                }
-                else {
-                    if (skipNullValues == false) result.put(key.toString(), null);
-                }
-            }
-            else {
-                result.put(key.toString(), value.toString());
-            }
-        }
-
+        // save last k-v pair
+        putEntry(result, key, value, lineNum, position);
         mode.clear();
         return result;
     }
