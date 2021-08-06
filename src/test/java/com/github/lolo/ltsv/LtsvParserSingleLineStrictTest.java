@@ -27,6 +27,18 @@ public class LtsvParserSingleLineStrictTest {
     }
 
     @Test
+    public void testSingleLineStrictDefaultsNonEnglish() {
+        LtsvParser parser = LtsvParser.builder().strict().build();
+        Iterator<Map<String, String>> it = parser.parse("абв:где\tжзи:2", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        Map<String, String> data = it.next();
+        assertEquals("Result contains two entries", 2, data.size());
+        assertThat(data, hasEntry("абв", "где"));
+        assertThat(data, hasEntry("жзи", "2"));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test
     public void testSingleLineStrictMultipleEntryDelimiters() {
         LtsvParser parser = LtsvParser.builder().strict().build();
         Iterator<Map<String, String>> it = parser.parse("abc:1\t\t\tdef:2", StandardCharsets.UTF_8);
