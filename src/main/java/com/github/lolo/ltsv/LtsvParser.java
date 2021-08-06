@@ -116,8 +116,8 @@ public class LtsvParser {
             position++;
             switch (mode.peek()) {
                 case KEY: {
-                    // kkk:vvv_n
-                    //         ^
+                    // kkk:vvvn
+                    //        ^
                     if (c == lineEnding) {
                         mode.pop();
                         mode.push(EOL);
@@ -129,10 +129,7 @@ public class LtsvParser {
                         if (strict) {
                             throw new ParseLtsvException(String.format("Key without a value at line [%d] position [%d]", lineNum, position));
                         }
-                        if (key.length() > 0) {
-                            if (skipNullValues == false) result.put(key.toString(), null);
-                            key.setLength(0);
-                        }
+                        key.append((char) c);
                         continue;
                     }
                     // k"kk:vvv
@@ -197,11 +194,7 @@ public class LtsvParser {
                     // kkk:vvv_kkk:vvv   or   kkk:"vvv"_kkk:vvv
                     //        ^                        ^
                     if (c == entryDelimiter) {
-                        putEntry(result, key, value, lineNum, position);
-                        key.setLength(0);
-                        value.setLength(0);
-                        mode.pop();
-                        mode.push(KEY);
+                        mode.push(ENTRY_DELIMITER);
                         continue;
                     }
                     value.append((char) c);
@@ -228,9 +221,56 @@ public class LtsvParser {
                     }
                     if (c == quoteChar) {
                         mode.pop();
+                        if (strict) {
+                            mode.pop();
+                            mode.push(VALUE);
+                            mode.push(ENTRY_DELIMITER);
+                        }
                         continue;
                     }
                     value.append((char) c);
+                    break;
+                }
+                case ENTRY_DELIMITER: {
+                    // kkk:vvv_n
+                    //         ^
+                    if (c == lineEnding) {
+                        mode.pop();
+                        mode.push(EOL);
+                        break;
+                    }
+                    // kkk_kkk:vvv   or   kkk__kkk:vvv
+                    //     ^                  ^
+                    if (c == entryDelimiter) {
+                        continue;
+                    }
+                    // kkk:vvv_\kkk:vvv   or   kkk:vvv_"kkk":vvv
+                    //         ^                       ^
+                    if (c == escapeChar || c == quoteChar) {
+                        mode.pop();
+                        continue;
+                    }
+                    if (c == kvDelimiter) {
+                        putEntry(result, key, value, lineNum, position);
+                        key.setLength(0);
+                        value.setLength(0);
+                        mode.pop();
+                        mode.pop();
+                        mode.push(VALUE);
+                        continue;
+                    }
+                    mode.pop();
+                    putEntry(result, key, value, lineNum, position);
+                    key.setLength(0);
+                    value.setLength(0);
+                    if (mode.peek() == KEY) {
+                        value.append((char) c);
+                    }
+                    else {
+                        key.append((char) c);
+                    }
+                    mode.pop();
+                    mode.push(KEY);
                     break;
                 }
             }

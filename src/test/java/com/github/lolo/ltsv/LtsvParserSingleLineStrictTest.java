@@ -27,6 +27,18 @@ public class LtsvParserSingleLineStrictTest {
     }
 
     @Test
+    public void testSingleLineStrictMultipleEntryDelimiters() {
+        LtsvParser parser = LtsvParser.builder().strict().build();
+        Iterator<Map<String, String>> it = parser.parse("abc:1\t\t\tdef:2", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        Map<String, String> data = it.next();
+        assertEquals("Result contains two entries", 2, data.size());
+        assertThat(data, hasEntry("abc", "1"));
+        assertThat(data, hasEntry("def", "2"));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test
     public void testSingleEmptyLineStrictDefaults() {
         LtsvParser parser = LtsvParser.builder().strict().build();
         Iterator<Map<String, String>> it = parser.parse("", StandardCharsets.UTF_8);
@@ -177,7 +189,7 @@ public class LtsvParserSingleLineStrictTest {
     @Test(expected = ParseLtsvException.class)
     public void testSingleLineStrictUnexpectedQuoteValue() {
         LtsvParser parser = LtsvParser.builder().withQuoteChar('`').strict().build();
-        Iterator<Map<String, String>> it = parser.parse("abc:```\tdef:2", StandardCharsets.UTF_8);
+        Iterator<Map<String, String>> it = parser.parse("abc:`0`1`\tdef:2\thij:`3`\tklm:4", StandardCharsets.UTF_8);
         it.next();
     }
 

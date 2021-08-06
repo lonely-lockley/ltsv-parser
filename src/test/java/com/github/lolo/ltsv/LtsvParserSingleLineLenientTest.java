@@ -32,10 +32,9 @@ public class LtsvParserSingleLineLenientTest {
         Iterator<Map<String, String>> it = parser.parse("abc:1\tdef\t:hij\tklm", StandardCharsets.UTF_8);
         assertTrue("Iterator must be non-empty", it.hasNext());
         Map<String, String> data = it.next();
-        assertEquals("Result contains four entries", 4, data.size());
+        assertEquals("Result contains three entries", 3, data.size());
         assertThat(data, hasEntry("abc", "1"));
-        assertThat(data, hasEntry("def", null));
-        assertThat(data, hasEntry(null, "hij"));
+        assertThat(data, hasEntry("def\t", "hij"));
         assertThat(data, hasEntry("klm", null));
         assertFalse("Iterator does not have any items left", it.hasNext());
     }
@@ -219,17 +218,20 @@ public class LtsvParserSingleLineLenientTest {
         Iterator<Map<String, String>> it = parser.parse("\tabc:1", StandardCharsets.UTF_8);
         Map<String, String> data = it.next();
         assertEquals("Result contains one entry", 1, data.size());
-        assertThat(data, hasEntry("abc", "1"));
+        assertThat(data, hasEntry("\tabc", "1"));
         assertFalse("Iterator does not have any items left", it.hasNext());
     }
 
     @Test
     public void testSingleLineLenientUnexpectedQuoteValue() {
         LtsvParser parser = LtsvParser.builder().withQuoteChar('`').lenient().build();
-        Iterator<Map<String, String>> it = parser.parse("abc:```\tdef:2", StandardCharsets.UTF_8);
+        Iterator<Map<String, String>> it = parser.parse("abc:`0`1`\tdef:2\thij:`3`\tklm:4", StandardCharsets.UTF_8);
         Map<String, String> data = it.next();
-        assertEquals("Result contains one entry", 1, data.size());
-        assertThat(data, hasEntry("abc", "1"));
+        assertEquals("Result contains four entries", 4, data.size());
+        assertThat(data, hasEntry("abc", "01`"));
+        assertThat(data, hasEntry("def", "2"));
+        assertThat(data, hasEntry("hij", "3"));
+        assertThat(data, hasEntry("klm", "4"));
         assertFalse("Iterator does not have any items left", it.hasNext());
     }
 
