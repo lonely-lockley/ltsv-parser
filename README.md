@@ -1,6 +1,7 @@
 # LTSV Parser
 
-[![Build Status](https://img.shields.io/travis/lonely-lockley/ltsv-parser)](https://api.travis-ci.org/lonely-lockley/}) 
+Master: [![Master build Status](https://travis-ci.com/lonely-lockley/ltsv-parser.svg?branch=master)](https://travis-ci.com/lonely-lockley/ltsv-parser)
+Dev:[![Dev build Status](https://travis-ci.com/lonely-lockley/ltsv-parser.svg?branch=dev)](https://travis-ci.com/lonely-lockley/ltsv-parser) 
 [![Coverage](https://img.shields.io/codecov/c/gh/lonely-lockley/ltsv-parser)](https://codecov.io/gh/lonely-lockley/ltsv-parser) 
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.lonely-lockley/ltsv-parser)](https://search.maven.org/search?q=ltsv-parser)
 [![License](https://img.shields.io/github/license/lonely-lockley/ltsv-parser?color=%235b92e5)](http://www.apache.org/licenses/)
@@ -30,13 +31,13 @@ LtsvParser parser = LtsvParser.builder().withQuoteChar('`').withKvDelimiter('=')
 Iterator<Map<String, String>> entries = parser.parse("city=`New York`\tlat=40.6943\tlon=-73.9249", 
     StandardCharsets.UTF_8);
 ```
-By default parser works in **strict** mode. It will throw a ParseLtsvException if meets a key without a value like this:
+By default parser works in **strict** mode. It will throw a ParseLtsvException if meets a problem in input data. For example a value without a key like this:
 ```java
 LtsvParser parser = LtsvParser.builder().withQuoteChar('`').withKvDelimiter('=').build();
-Iterator<Map<String, String>> entries = parser.parse("city=`New York`\tlat\tlon=-73.9249", 
+Iterator<Map<String, String>> entries = parser.parse("city=`New York`\t=40.6943\tlon=-73.9249", 
     StandardCharsets.UTF_8);
 ```
-You can enable **lenient** parse mode when building a parser to make it ignore some recoverable errors in input data. In the case above lenient parser returns `null` value for key `latitude`
+You can enable **lenient** parse mode when building a parser to make it ignore some recoverable errors in input data. In the case above lenient parser returns `null` key for value `40.6943`. Lenient mode tries to do it's best to parse your data, but it is not guaranteed to be parsed correctly. You should test such cases thoroughly.
 <br>Parse a FileInputStream:
 <br>test.ltsv
 ```

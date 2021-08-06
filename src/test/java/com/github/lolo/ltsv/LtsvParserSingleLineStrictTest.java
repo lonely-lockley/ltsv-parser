@@ -63,7 +63,7 @@ public class LtsvParserSingleLineStrictTest {
     @Test
     public void testSingleLineStrictHasExcessiveEntryDelimiter() {
         LtsvParser parser = LtsvParser.builder().strict().build();
-        Iterator<Map<String, String>> it = parser.parse("abc:1\tdef:2\t", StandardCharsets.UTF_8);
+        Iterator<Map<String, String>> it = parser.parse("abc:1\tdef:2\t\n", StandardCharsets.UTF_8);
         assertTrue("Iterator must be non-empty", it.hasNext());
         Map<String, String> data = it.next();
         assertEquals("Result contains two entries", 2, data.size());
@@ -154,6 +154,66 @@ public class LtsvParserSingleLineStrictTest {
         assertThat(data, hasEntry("abc", "1"));
         assertThat(data, hasEntry("hij", null));
         assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test
+    public void testSingleLineStrictTrimKeys() {
+        LtsvParser parser = LtsvParser.builder().strict().withQuoteChar('`').trimKeys().build();
+        Iterator<Map<String, String>> it = parser.parse("abc :1 \t hij :``", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        Map<String, String> data = it.next();
+        assertEquals("Result contains two entries", 2, data.size());
+        assertThat(data, hasEntry("abc", "1 "));
+        assertThat(data, hasEntry("hij", null));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test
+    public void testSingleLineStrictTrimValues() {
+        LtsvParser parser = LtsvParser.builder().strict().withQuoteChar('`').trimValues().build();
+        Iterator<Map<String, String>> it = parser.parse("abc :1 \t hij :``", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        Map<String, String> data = it.next();
+        assertEquals("Result contains two entries", 2, data.size());
+        assertThat(data, hasEntry("abc ", "1"));
+        assertThat(data, hasEntry(" hij ", null));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test
+    public void testSingleLineStrictTrimBoth() {
+        LtsvParser parser = LtsvParser.builder().strict().withQuoteChar('`').trimKeys().trimValues().build();
+        Iterator<Map<String, String>> it = parser.parse("abc :1 \t hij :``", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        Map<String, String> data = it.next();
+        assertEquals("Result contains two entries", 2, data.size());
+        assertThat(data, hasEntry("abc", "1"));
+        assertThat(data, hasEntry("hij", null));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test(expected = ParseLtsvException.class)
+    public void testSingleLineStrictKeyStartsWithQoute() {
+        LtsvParser parser = LtsvParser.builder().strict().withQuoteChar('`').build();
+        Iterator<Map<String, String>> it = parser.parse("abc:1\t`hij`:2", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        it.next();
+    }
+
+    @Test(expected = ParseLtsvException.class)
+    public void testSingleLineStrictKeyStartsWithEscape() {
+        LtsvParser parser = LtsvParser.builder().strict().withEscapeChar('|').build();
+        Iterator<Map<String, String>> it = parser.parse("abc:1\t|hij:", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        it.next();
+    }
+
+    @Test(expected = ParseLtsvException.class)
+    public void testSingleLineStrictKeyContainsEntryDelimiter() {
+        LtsvParser parser = LtsvParser.builder().strict().build();
+        Iterator<Map<String, String>> it = parser.parse("a\tbc:1\thij:2", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        it.next();
     }
 
     @Test(expected = ParseLtsvException.class)
