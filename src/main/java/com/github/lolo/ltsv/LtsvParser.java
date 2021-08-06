@@ -27,6 +27,10 @@ public class LtsvParser {
 
     private boolean skipNullValues = false;
 
+    private boolean trimKeys = false;
+
+    private boolean trimValues = false;
+
     private LinkedList<ParseMode> mode = new LinkedList<>();
 
     private LtsvParser() {}
@@ -77,10 +81,30 @@ public class LtsvParser {
     private void putEntry(Map<String, String> result, ByteArrayOutputStream key, ByteArrayOutputStream value, int lineNum, int position) {
         if (key.size() > 0) {
             if (value.size() == 0) {
-                if (skipNullValues == false) result.put(new String(key.toByteArray(), StandardCharsets.UTF_8), null);
+                if (!skipNullValues) {
+                    if (trimKeys) {
+                        result.put(new String(key.toByteArray(), StandardCharsets.UTF_8).trim(), null);
+                    }
+                    else {
+                        result.put(new String(key.toByteArray(), StandardCharsets.UTF_8), null);
+                    }
+                }
             }
             else {
-                result.put(new String(key.toByteArray(), StandardCharsets.UTF_8), new String(value.toByteArray(), StandardCharsets.UTF_8));
+                if (trimKeys && trimValues) {
+                    result.put(new String(key.toByteArray(), StandardCharsets.UTF_8).trim(), new String(value.toByteArray(), StandardCharsets.UTF_8).trim());
+                }
+                else
+                if (trimKeys && !trimValues) {
+                    result.put(new String(key.toByteArray(), StandardCharsets.UTF_8).trim(), new String(value.toByteArray(), StandardCharsets.UTF_8));
+                }
+                else
+                if (!trimKeys && trimValues) {
+                    result.put(new String(key.toByteArray(), StandardCharsets.UTF_8), new String(value.toByteArray(), StandardCharsets.UTF_8).trim());
+                }
+                else {
+                    result.put(new String(key.toByteArray(), StandardCharsets.UTF_8), new String(value.toByteArray(), StandardCharsets.UTF_8));
+                }
             }
         }
         else {
@@ -89,7 +113,12 @@ public class LtsvParser {
                     throw new ParseLtsvException(String.format("Empty key detected at line [%d] position [%d]", lineNum, position));
                 }
                 else {
-                    result.put(null, new String(value.toByteArray(), StandardCharsets.UTF_8));
+                    if (trimValues) {
+                        result.put(null, new String(value.toByteArray(), StandardCharsets.UTF_8).trim());
+                    }
+                    else {
+                        result.put(null, new String(value.toByteArray(), StandardCharsets.UTF_8));
+                    }
                 }
             }
         }
@@ -142,10 +171,8 @@ public class LtsvParser {
                         if (strict) {
                             throw new ParseLtsvException(String.format("Unexpected quote token [%c] at line [%d] position [%d]", c, lineNum, position));
                         }
-                        else {
-                            key.write(c);
-                            continue;
-                        }
+                        key.write(c);
+                        continue;
                     }
                     // k\kk:vvv
                     //  ^
@@ -153,10 +180,8 @@ public class LtsvParser {
                         if (strict) {
                             throw new ParseLtsvException(String.format("Unexpected escape token [%c] at line [%d] position [%d]", c, lineNum, position));
                         }
-                        else {
-                            mode.push(ESCAPED);
-                            continue;
-                        }
+                        mode.push(ESCAPED);
+                        continue;
                     }
                     // kkk:vvv
                     //    ^
@@ -232,7 +257,12 @@ public class LtsvParser {
                         }
                         continue;
                     }
-                    value.write(c);
+                    if (mode.peekLast() == KEY) {
+                        key.write(c);
+                    }
+                    else {
+                        value.write(c);
+                    }
                     break;
                 }
                 case ENTRY_DELIMITER: {
@@ -248,12 +278,33 @@ public class LtsvParser {
                     if (c == entryDelimiter) {
                         continue;
                     }
-                    // kkk:vvv_\kkk:vvv   or   kkk:vvv_"kkk":vvv
-                    //         ^                       ^
-                    if (c == escapeChar || c == quoteChar) {
+                    // kkk:vvv_\kkk:vvv
+                    //         ^
+                    if (c == escapeChar) {
+                        if (strict) {
+                            throw new ParseLtsvException(String.format("Unexpected quote token [%c] at line [%d] position [%d]", c, lineNum, position));
+                        }
+                        putEntry(result, key, value, lineNum, position);
                         mode.pop();
+                        mode.pop();
+                        mode.push(KEY);
                         continue;
                     }
+                    // kkk:vvv_"kkk":vvv
+                    //         ^
+                    if (c == quoteChar) {
+                        if (strict) {
+                            throw new ParseLtsvException(String.format("Unexpected escape token [%c] at line [%d] position [%d]", c, lineNum, position));
+                        }
+                        putEntry(result, key, value, lineNum, position);
+                        mode.pop();
+                        mode.pop();
+                        mode.push(KEY);
+                        mode.push(QUOTED);
+                        continue;
+                    }
+                    // kkk_:vvv
+                    //     ^
                     if (c == kvDelimiter) {
                         putEntry(result, key, value, lineNum, position);
                         mode.pop();
@@ -362,6 +413,24 @@ public class LtsvParser {
          */
         public Builder skipNullValues() {
             LtsvParser.this.skipNullValues = true;
+            return this;
+        }
+
+        /**
+         * Sets up a mode when leading and trailing spaces for keys are eliminated
+         * @return <b>this</b> for chaining
+         */
+        public Builder trimKeys() {
+            LtsvParser.this.trimKeys = true;
+            return this;
+        }
+
+        /**
+         * Sets up a mode when leading and trailing spaces for values are eliminated
+         * @return <b>this</b> for chaining
+         */
+        public Builder trimValues() {
+            LtsvParser.this.trimValues = true;
             return this;
         }
 

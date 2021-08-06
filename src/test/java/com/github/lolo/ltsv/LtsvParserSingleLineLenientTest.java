@@ -64,7 +64,7 @@ public class LtsvParserSingleLineLenientTest {
     @Test
     public void testSingleLineLenientHasExcessiveEntryDelimiter() {
         LtsvParser parser = LtsvParser.builder().lenient().build();
-        Iterator<Map<String, String>> it = parser.parse("abc:1\tdef:2\t", StandardCharsets.UTF_8);
+        Iterator<Map<String, String>> it = parser.parse("abc:1\tdef:2\t\n", StandardCharsets.UTF_8);
         assertTrue("Iterator must be non-empty", it.hasNext());
         Map<String, String> data = it.next();
         assertEquals("Result contains two entries", 2, data.size());
@@ -76,7 +76,7 @@ public class LtsvParserSingleLineLenientTest {
     @Test
     public void testSingleLineLenientHasExcessiveEntryDelimiterAndEmptyValue() {
         LtsvParser parser = LtsvParser.builder().lenient().build();
-        Iterator<Map<String, String>> it = parser.parse("abc:1\tdef:\t", StandardCharsets.UTF_8);
+        Iterator<Map<String, String>> it = parser.parse("abc:1\tdef:\t\n", StandardCharsets.UTF_8);
         assertTrue("Iterator must be non-empty", it.hasNext());
         Map<String, String> data = it.next();
         assertEquals("Result contains two entries", 2, data.size());
@@ -209,6 +209,81 @@ public class LtsvParserSingleLineLenientTest {
         assertEquals("Result contains two entries", 2, data.size());
         assertThat(data, hasEntry("abc", "1"));
         assertThat(data, hasEntry("hij", null));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test
+    public void testSingleLineLenientTrimKeys() {
+        LtsvParser parser = LtsvParser.builder().lenient().withQuoteChar('`').trimKeys().build();
+        Iterator<Map<String, String>> it = parser.parse("abc :1 \t hij :``\t: klm", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        Map<String, String> data = it.next();
+        assertEquals("Result contains three entries", 3, data.size());
+        assertThat(data, hasEntry("abc", "1 "));
+        assertThat(data, hasEntry("hij", null));
+        assertThat(data, hasEntry(null, " klm"));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test
+    public void testSingleLineLenientTrimValues() {
+        LtsvParser parser = LtsvParser.builder().lenient().withQuoteChar('`').trimValues().build();
+        Iterator<Map<String, String>> it = parser.parse("abc :1 \t hij :``\t: klm", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        Map<String, String> data = it.next();
+        assertEquals("Result contains three entries", 3, data.size());
+        assertThat(data, hasEntry("abc ", "1"));
+        assertThat(data, hasEntry(" hij ", null));
+        assertThat(data, hasEntry(null, "klm"));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test
+    public void testSingleLineLenientTrimBoth() {
+        LtsvParser parser = LtsvParser.builder().lenient().withQuoteChar('`').trimKeys().trimValues().build();
+        Iterator<Map<String, String>> it = parser.parse("abc :1 \t hij :``\t: klm", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        Map<String, String> data = it.next();
+        assertEquals("Result contains three entries", 3, data.size());
+        assertThat(data, hasEntry("abc", "1"));
+        assertThat(data, hasEntry("hij", null));
+        assertThat(data, hasEntry(null, "klm"));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test
+    public void testSingleLineLenientKeyStartsWithQoute() {
+        LtsvParser parser = LtsvParser.builder().lenient().withQuoteChar('`').build();
+        Iterator<Map<String, String>> it = parser.parse("abc:1\t`hij`:2", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        Map<String, String> data = it.next();
+        assertEquals("Result contains two entries", 2, data.size());
+        assertThat(data, hasEntry("abc", "1"));
+        assertThat(data, hasEntry("hij", "2"));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test
+    public void testSingleLineLenientKeyStartsWithEscape() {
+        LtsvParser parser = LtsvParser.builder().lenient().withEscapeChar('|').withQuoteChar('`').build();
+        Iterator<Map<String, String>> it = parser.parse("abc:1\t|`hij:", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        Map<String, String> data = it.next();
+        assertEquals("Result contains two entries", 2, data.size());
+        assertThat(data, hasEntry("abc", "1"));
+        assertThat(data, hasEntry("`hij", null));
+        assertFalse("Iterator does not have any items left", it.hasNext());
+    }
+
+    @Test
+    public void testSingleLineLenientKeyContainsEntryDelimiter() {
+        LtsvParser parser = LtsvParser.builder().lenient().build();
+        Iterator<Map<String, String>> it = parser.parse("a\tbc:1\thij:2", StandardCharsets.UTF_8);
+        assertTrue("Iterator must be non-empty", it.hasNext());
+        Map<String, String> data = it.next();
+        assertEquals("Result contains two entries", 2, data.size());
+        assertThat(data, hasEntry("a\tbc", "1"));
+        assertThat(data, hasEntry("hij", "2"));
         assertFalse("Iterator does not have any items left", it.hasNext());
     }
 
