@@ -1,7 +1,9 @@
 package com.github.lolo.ltsv;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -72,25 +74,27 @@ public class LtsvParser {
         return LineIterator.newIterator(data, this::parseLine);
     }
 
-    private void putEntry(Map<String, String> result, StringBuilder key, StringBuilder value, int lineNum, int position) {
-        if (key.length() > 0) {
-            if (value.length() == 0) {
-                if (skipNullValues == false) result.put(key.toString(), null);
+    private void putEntry(Map<String, String> result, ByteArrayOutputStream key, ByteArrayOutputStream value, int lineNum, int position) {
+        if (key.size() > 0) {
+            if (value.size() == 0) {
+                if (skipNullValues == false) result.put(new String(key.toByteArray(), StandardCharsets.UTF_8), null);
             }
             else {
-                result.put(key.toString(), value.toString());
+                result.put(new String(key.toByteArray(), StandardCharsets.UTF_8), new String(value.toByteArray(), StandardCharsets.UTF_8));
             }
         }
         else {
-            if (value.length() > 0) {
+            if (value.size() > 0) {
                 if (strict) {
                     throw new ParseLtsvException(String.format("Empty key detected at line [%d] position [%d]", lineNum, position));
                 }
                 else {
-                    result.put(null, value.toString());
+                    result.put(null, new String(value.toByteArray(), StandardCharsets.UTF_8));
                 }
             }
         }
+        key.reset();
+        value.reset();
     }
 
     /**
@@ -107,8 +111,8 @@ public class LtsvParser {
      */
     private Map<String, String> parseLine(InputStream data, int lineNum) throws IOException {
         mode.push(KEY);
-        StringBuilder key = new StringBuilder(128);
-        StringBuilder value = new StringBuilder(1024);
+        ByteArrayOutputStream key = new ByteArrayOutputStream(1024);
+        ByteArrayOutputStream value = new ByteArrayOutputStream(1024);
         Map<String, String> result = new HashMap<>();
         int position = 0;
         while (data.available() > 0 && mode.peek() != EOL) {
@@ -129,7 +133,7 @@ public class LtsvParser {
                         if (strict) {
                             throw new ParseLtsvException(String.format("Key without a value at line [%d] position [%d]", lineNum, position));
                         }
-                        key.append((char) c);
+                        key.write(c);
                         continue;
                     }
                     // k"kk:vvv
@@ -139,7 +143,7 @@ public class LtsvParser {
                             throw new ParseLtsvException(String.format("Unexpected quote token [%c] at line [%d] position [%d]", c, lineNum, position));
                         }
                         else {
-                            key.append((char) c);
+                            key.write(c);
                             continue;
                         }
                     }
@@ -157,7 +161,7 @@ public class LtsvParser {
                     // kkk:vvv
                     //    ^
                     if (c == kvDelimiter) {
-                        if (key.length() == 0 && strict) {
+                        if (key.size() == 0 && strict) {
                             throw new ParseLtsvException(String.format("Empty key detected at line [%d] position [%d]", lineNum, position));
                         }
                         mode.pop();
@@ -167,7 +171,7 @@ public class LtsvParser {
                     // kkk:vvv
                     //  ^
                     else {
-                        key.append((char) c);
+                        key.write(c);
                     }
                     break;
                 }
@@ -181,7 +185,7 @@ public class LtsvParser {
                     }
                     // kkk:"vvv"
                     //     ^
-                    if (c == quoteChar && value.length() == 0) {
+                    if (c == quoteChar && value.size() == 0) {
                         mode.push(QUOTED);
                         continue;
                     }
@@ -197,7 +201,7 @@ public class LtsvParser {
                         mode.push(ENTRY_DELIMITER);
                         continue;
                     }
-                    value.append((char) c);
+                    value.write(c);
                     break;
                 }
                 // kkk:v\vv
@@ -205,10 +209,10 @@ public class LtsvParser {
                 case ESCAPED: {
                     mode.pop();
                     if (mode.peek() == KEY) {
-                        key.append((char) c);
+                        key.write(c);
                     }
                     else {
-                        value.append((char) c);
+                        value.write(c);
                     }
                     break;
                 }
@@ -228,7 +232,7 @@ public class LtsvParser {
                         }
                         continue;
                     }
-                    value.append((char) c);
+                    value.write(c);
                     break;
                 }
                 case ENTRY_DELIMITER: {
@@ -252,8 +256,6 @@ public class LtsvParser {
                     }
                     if (c == kvDelimiter) {
                         putEntry(result, key, value, lineNum, position);
-                        key.setLength(0);
-                        value.setLength(0);
                         mode.pop();
                         mode.pop();
                         mode.push(VALUE);
@@ -261,13 +263,11 @@ public class LtsvParser {
                     }
                     mode.pop();
                     putEntry(result, key, value, lineNum, position);
-                    key.setLength(0);
-                    value.setLength(0);
                     if (mode.peek() == KEY) {
-                        value.append((char) c);
+                        value.write(c);
                     }
                     else {
-                        key.append((char) c);
+                        key.write(c);
                     }
                     mode.pop();
                     mode.push(KEY);
