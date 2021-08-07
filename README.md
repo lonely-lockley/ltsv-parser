@@ -38,7 +38,7 @@ Iterator<Map<String, String>> entries = parser.parse("city=`New York`\t=40.6943\
     StandardCharsets.UTF_8);
 ```
 You can enable **lenient** parse mode when building a parser to make it ignore some recoverable errors in input data. In the case above lenient parser returns `null` key for value `40.6943`. Lenient mode tries to do it's best to parse your data, but it is not guaranteed to be parsed correctly. You should test such cases thoroughly.
-<br>Parse a FileInputStream:
+<br><br>Parse a FileInputStream:
 <br>test.ltsv
 ```
 city=Moscow lat=55.7522 lon=37.6155
@@ -82,7 +82,7 @@ To run performance tests use `./gradlew clean jmh`. Test modes description:
  * xxxSingleStringAT - parser input as a single message string (average time mode)
 
 All testsuites run on MBP late 2019 core i9.
-####JDK 8
+#### JDK 8
 ```
 # JMH version: 1.28
 # VM version: JDK 1.8.0_231, Java HotSpot(TM) 64-Bit Server VM, 25.231-b11
@@ -103,7 +103,7 @@ CompareLibs.testLtsvParserSingleString      thrpt   15    1669435.111 ±  73153.
 CompareLibs.testLtsvParserMultiStreamAT      avgt   15          6.286 ±      0.088  ns/op
 CompareLibs.testLtsvParserSingleStringAT     avgt   15        592.818 ±     12.343  ns/op
 ```
-####JDK 11
+#### JDK 11
 ```
 # JMH version: 1.28
 # VM version: JDK 11.0.9.1, OpenJDK 64-Bit Server VM, 11.0.9.1+11-b1145.77
