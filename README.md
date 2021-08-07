@@ -1,7 +1,7 @@
 # LTSV Parser
 
-Master: [![Master build Status](https://travis-ci.com/lonely-lockley/ltsv-parser.svg?branch=master)](https://travis-ci.com/lonely-lockley/ltsv-parser)
-Dev:[![Dev build Status](https://travis-ci.com/lonely-lockley/ltsv-parser.svg?branch=dev)](https://travis-ci.com/lonely-lockley/ltsv-parser) 
+**Master:** [![Master build Status](https://travis-ci.com/lonely-lockley/ltsv-parser.svg?branch=master)](https://travis-ci.com/lonely-lockley/ltsv-parser)
+**Dev:** [![Dev build Status](https://travis-ci.com/lonely-lockley/ltsv-parser.svg?branch=dev)](https://travis-ci.com/lonely-lockley/ltsv-parser) 
 [![Coverage](https://img.shields.io/codecov/c/gh/lonely-lockley/ltsv-parser)](https://codecov.io/gh/lonely-lockley/ltsv-parser) 
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.lonely-lockley/ltsv-parser)](https://search.maven.org/search?q=ltsv-parser)
 [![License](https://img.shields.io/github/license/lonely-lockley/ltsv-parser?color=%235b92e5)](http://www.apache.org/licenses/)
@@ -62,7 +62,7 @@ http://ltsv.org/
 ## Adding dependency to project
 #### Gradle
 ```groovy
-implementation 'com.github.lonely-lockley:ltsv-parser:1.0.0'
+implementation 'com.github.lonely-lockley:ltsv-parser:1.1.0'
 ```
 
 #### Maven
@@ -70,10 +70,60 @@ implementation 'com.github.lonely-lockley:ltsv-parser:1.0.0'
 <dependency>
     <groupId>com.github.lonely-lockley</groupId>
     <artifactId>ltsv-parser</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
+## Performance compared to ltsv4j
+To run performance tests use `./gradlew clean jmh`. Test modes description:
+ * xxxMultiStream - parser input as stream with several lines in it (throughput mode)
+ * xxxSingleString - parser input as a single message string (throughput mode)
+ * xxxMultiStreamAT - parser input as stream with several lines in it (average time mode)
+ * xxxSingleStringAT - parser input as a single message string (average time mode)
+
+All testsuites run on MBP late 2019 core i9.
+####JDK 8
+```
+# JMH version: 1.28
+# VM version: JDK 1.8.0_231, Java HotSpot(TM) 64-Bit Server VM, 25.231-b11
+# Blackhole mode: full + dont-inline hint
+# Warmup: 5 iterations, 10 s each
+# Measurement: 5 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+
+Benchmark                                    Mode  Cnt          Score        Error  Units
+CompareLibs.testLTSV4JParserMultiStream     thrpt   15     729379.086 ± 114016.073  ops/s
+CompareLibs.testLTSV4JParserSingleString    thrpt   15     585511.481 ±  44648.473  ops/s
+CompareLibs.testLTSV4JParserMultiStreamAT    avgt   15       1207.752 ±    125.387  ns/op
+CompareLibs.testLTSV4JParserSingleStringAT   avgt   15       1740.888 ±     81.815  ns/op
+
+CompareLibs.testLtsvParserMultiStream       thrpt   15  160713609.883 ± 997749.139  ops/s
+CompareLibs.testLtsvParserSingleString      thrpt   15    1669435.111 ±  73153.612  ops/s
+CompareLibs.testLtsvParserMultiStreamAT      avgt   15          6.286 ±      0.088  ns/op
+CompareLibs.testLtsvParserSingleStringAT     avgt   15        592.818 ±     12.343  ns/op
+```
+####JDK 11
+```
+# JMH version: 1.28
+# VM version: JDK 11.0.9.1, OpenJDK 64-Bit Server VM, 11.0.9.1+11-b1145.77
+# Blackhole mode: full + dont-inline hint
+# Warmup: 5 iterations, 10 s each
+# Measurement: 5 iterations, 10 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+
+Benchmark                                    Mode  Cnt         Score         Error  Units
+CompareLibs.testLTSV4JParserMultiStream     thrpt   15    655398.215 ±   82456.503  ops/s
+CompareLibs.testLTSV4JParserSingleString    thrpt   15    228357.689 ±   14201.487  ops/s
+CompareLibs.testLTSV4JParserMultiStreamAT    avgt   15      1302.034 ±      30.900  ns/op
+CompareLibs.testLTSV4JParserSingleStringAT   avgt   15      4602.262 ±     474.742  ns/op
+
+CompareLibs.testLtsvParserMultiStream       thrpt   15  91420028.647 ± 6547352.545  ops/s
+CompareLibs.testLtsvParserSingleString      thrpt   15  13817519.712 ±  941718.683  ops/s
+CompareLibs.testLtsvParserMultiStreamAT      avgt   15         9.686 ±       0.418  ns/op
+CompareLibs.testLtsvParserSingleStringAT     avgt   15        66.396 ±       2.744  ns/op
+```
 ## Prerequisites
 
 * JDK8+
